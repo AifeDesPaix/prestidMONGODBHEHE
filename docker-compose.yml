@@ -1,0 +1,70 @@
+version: '2'
+services:
+
+  ## Config Servers
+  ClusterChiiiiwawa:
+    image: mongo
+    command: mongod --port 27017 --configsvr --replSet configserver --noprealloc --smallfiles --oplogSize 16
+    volumes:
+      - ./scripts:/scripts
+  ClusterLaaabrador:
+    image: mongo
+    command: mongod --port 27017 --configsvr --replSet configserver --noprealloc --smallfiles --oplogSize 16
+    volumes:
+      - ./scripts:/scripts
+  ClusterTeeeekel:
+    image: mongo
+    command: mongod --port 27017 --configsvr --replSet configserver --noprealloc --smallfiles --oplogSize 16
+    volumes:
+      - ./scripts:/scripts
+
+  ## Shards
+  ShardPiiiiikachu:
+    image: mongo
+    command: mongod --port 27018 --shardsvr --replSet ClusterChiiiiwawa --noprealloc --smallfiles --oplogSize 16
+    volumes:
+      - ./scripts:/scripts
+  ShardSaaaalameche:
+    image: mongo
+    command: mongod --port 27018 --shardsvr --replSet ClusterChiiiiwawa --noprealloc --smallfiles --oplogSize 16
+    volumes:
+      - ./scripts:/scripts
+  ShardToooortank:
+    image: mongo
+    command: mongod --port 27019 --shardsvr --replSet ClusterLaaabrador --noprealloc --smallfiles --oplogSize 16
+    volumes:
+      - ./scripts:/scripts
+  ShardMiiiiaoussss:
+    image: mongo
+    command: mongod --port 27019 --shardsvr --replSet ClusterLaaabrador --noprealloc --smallfiles --oplogSize 16
+    volumes:
+      - ./scripts:/scripts
+  ShardRoooonflex:
+    image: mongo
+    command: mongod --port 27020 --shardsvr --replSet ClusterTeeeekel --noprealloc --smallfiles --oplogSize 16
+    volumes:
+      - ./scripts:/scripts
+  ShardBuuuulbizarre:
+    image: mongo
+    command: mongod --port 27020 --shardsvr --replSet ClusterTeeeekel --noprealloc --smallfiles --oplogSize 16
+    volumes:
+      - ./scripts:/scripts
+
+  ## Router
+  router:
+    image: mongo
+    command: mongos --port 27017 --configdb configserver/ClusterChiiiiwawa:27017,ClusterLaaabrador:27017,ClusterTeeeekel:27017
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./scripts:/scripts
+    depends_on:
+      - ClusterChiiiiwawa
+      - ClusterLaaabrador
+      - ClusterTeeeekel
+      - ShardPiiiiikachu
+      - ShardSaaaalameche
+      - ShardToooortank
+      - ShardMiiiiaoussss
+      - ShardRoooonflex
+      - ShardBuuuulbizarre
